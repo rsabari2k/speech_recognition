@@ -548,6 +548,10 @@ class Recognizer(AudioSource):
         for i in range(pause_count - non_speaking_buffer_count): frames.pop()  # remove extra non-speaking frames at the end
         frame_data = b"".join(frames)
 
+        '''SR: Stereo to Mono'''
+        if source.device_channel != 1:  # stereo audio
+            frame_data = audioop.tomono(frame_data, source.SAMPLE_WIDTH, 1, 1)  # convert stereo audio data to mono
+
         return AudioData(frame_data, source.SAMPLE_RATE, source.SAMPLE_WIDTH)
 
     def listen_in_background(self, source, callback, phrase_time_limit=None):
