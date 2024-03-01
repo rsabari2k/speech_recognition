@@ -111,7 +111,10 @@ class Microphone(AudioSource):
         """
         try:
             #import pyaudio
-            import pyaudiowpatch as pyaudio
+            if sys.platform.lower().startswith("win"):
+                import pyaudiowpatch as pyaudio
+            else:
+                import pyaudio
         except ImportError:
             raise AttributeError("Could not find PyAudio; check installation")
         from distutils.version import LooseVersion
