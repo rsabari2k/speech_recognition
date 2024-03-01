@@ -110,8 +110,8 @@ class Microphone(AudioSource):
         except ImportError:
             raise AttributeError("Could not find PyAudio; check installation")
         from distutils.version import LooseVersion
-        if LooseVersion(pyaudio.__version__) < LooseVersion("0.2.11"):
-            raise AttributeError("PyAudio 0.2.11 or later is required (found version {})".format(pyaudio.__version__))
+        #if LooseVersion(pyaudio.__version__) < LooseVersion("0.2.11"):
+            #raise AttributeError("PyAudio 0.2.11 or later is required (found version {})".format(pyaudio.__version__))
         return pyaudio
 
     @staticmethod
