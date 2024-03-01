@@ -70,8 +70,10 @@ class Microphone(AudioSource):
     Higher ``sample_rate`` values result in better audio quality, but also more bandwidth (and therefore, slower recognition). Additionally, some CPUs, such as those in older Raspberry Pi models, can't keep up if this value is too high.
 
     Higher ``chunk_size`` values help avoid triggering on rapidly changing ambient noise, but also makes detection less sensitive. This value, generally, should be left at its default.
+
+    SR: added device_channel. Cahnge in __enter__ and list_microphone_names methods
     """
-    def __init__(self, device_index=None, sample_rate=None, chunk_size=1024):
+    def __init__(self, device_index=None, sample_rate=None, chunk_size=1024, device_channel=1):
         assert device_index is None or isinstance(device_index, int), "Device index must be None or an integer"
         assert sample_rate is None or (isinstance(sample_rate, int) and sample_rate > 0), "Sample rate must be None or a positive integer"
         assert isinstance(chunk_size, int) and chunk_size > 0, "Chunk size must be a positive integer"
@@ -95,6 +97,7 @@ class Microphone(AudioSource):
         self.SAMPLE_WIDTH = self.pyaudio_module.get_sample_size(self.format)  # size of each sample
         self.SAMPLE_RATE = sample_rate  # sampling rate in Hertz
         self.CHUNK = chunk_size  # number of frames stored in each buffer
+        self.device_channel = device_channel #Use any other device 
 
         self.audio = None
         self.stream = None
@@ -103,6 +106,8 @@ class Microphone(AudioSource):
     def get_pyaudio():
         """
         Imports the pyaudio module and checks its version. Throws exceptions if pyaudio can't be found or a wrong version is installed
+
+        SR: changed  import pyaudiowpatch as pyaudio and removed if LooseVersion
         """
         try:
             #import pyaudio
@@ -149,7 +154,7 @@ class Microphone(AudioSource):
                 try:
                     # read audio
                     pyaudio_stream = audio.open(
-                        input_device_index=device_index, channels=1, format=pyaudio_module.paInt16,
+                        input_device_index=device_index, channels=device_channel, format=pyaudio_module.paInt16,
                         rate=int(device_info["defaultSampleRate"]), input=True
                     )
                     try:
@@ -177,7 +182,7 @@ class Microphone(AudioSource):
         try:
             self.stream = Microphone.MicrophoneStream(
                 self.audio.open(
-                    input_device_index=self.device_index, channels=1, format=self.format,
+                    input_device_index=self.device_index, channels=self.device_channel, format=self.format,
                     rate=self.SAMPLE_RATE, frames_per_buffer=self.CHUNK, input=True,
                 )
             )
